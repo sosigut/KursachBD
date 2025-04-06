@@ -58,20 +58,24 @@ def add_teacher(teacher_fio, manual_count, academic_degree, id_department):
 
 
 # Функция для редактирования преподавателя
-def update_teacher(id_teacher, teacher_fio, manual_count, academic_degree, id_department):
+def update_teacher_field(id_teacher, field_name, new_value):
     conn = connect_to_db()
     if conn is None:
         return
 
+    allowed_fields = ["teacher_fio", "manual_count", "academic_degree", "id_department"]
+
+    if field_name not in allowed_fields:
+        print("Ошибка: Недопустимое поле для обновления")
+        return
+
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE teacher
-            SET teacher_fio = %s, manual_count = %s, academic_degree = %s, id_department = %s
-            WHERE id_teacher = %s;
-        """, (teacher_fio, manual_count, academic_degree, id_department, id_teacher))
+        query = f"UPDATE teacher SET {field_name} = %s WHERE id_teacher = %s;"
+        cursor.execute(query, (new_value, id_teacher))
         conn.commit()
         cursor.close()
+        print("Преподаватель успешно обновлен")
     except DatabaseError as e:
         print(f"Ошибка выполнения запроса: {e}")
         conn.rollback()
@@ -79,7 +83,6 @@ def update_teacher(id_teacher, teacher_fio, manual_count, academic_degree, id_de
         print(f"Неизвестная ошибка при редактировании преподавателя: {e}")
     finally:
         conn.close()
-
 
 # Функция для удаления преподавателя
 def delete_teacher(id_teacher):

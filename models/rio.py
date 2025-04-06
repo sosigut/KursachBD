@@ -58,20 +58,24 @@ def add_rio(reviewer_fio, positions, manual_count):
 
 
 # Функция для редактирования РИО
-def update_rio(id_worker, reviewer_fio, position, manual_count):
+def update_rio_field(id_worker, field_name, new_value):
     conn = connect_to_db()
     if conn is None:
         return
 
+    allowed_fields = ["reviewer_fio", "positions", "manual_count"]
+
+    if field_name not in allowed_fields:
+        print("Ошибка: Недопустимое поле для обновления")
+        return
+
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE rio
-            SET reviewer_fio = %s, positions = %s, manual_count = %s
-            WHERE id_worker = %s;
-        """, (reviewer_fio, positions, manual_count, id_wor))
+        query = f"UPDATE rio SET {field_name} = %s WHERE id_worker = %s;"
+        cursor.execute(query, (new_value, id_worker))
         conn.commit()
         cursor.close()
+        print("РИО успешно обновлен")
     except DatabaseError as e:
         print(f"Ошибка выполнения запроса: {e}")
         conn.rollback()

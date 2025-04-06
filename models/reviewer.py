@@ -58,20 +58,24 @@ def add_reviewer(reviewer_fio, id_manual):
 
 
 # Функция для редактирования проверяющего
-def update_reviewer(id_reviewer, reviewer_fio, id_manual):
+def update_reviewer_field(id_reviewer, field_name, new_value):
     conn = connect_to_db()
     if conn is None:
         return
 
+    allowed_fields = ["reviewer_fio", "id_manual"]
+
+    if field_name not in allowed_fields:
+        print("Ошибка: Недопустимое поле для обновления")
+        return
+
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE reviewer
-            SET reviewer_fio = %s, id_manual = %s
-            WHERE id_reviewer = %s;
-        """, (reviewer_fio, id_manual, id_reviewer))
+        query = f"UPDATE reviewer SET {field_name} = %s WHERE id_reviewer = %s;"
+        cursor.execute(query, (new_value, id_reviewer))
         conn.commit()
         cursor.close()
+        print("Проверяющий успешно обновлен")
     except DatabaseError as e:
         print(f"Ошибка выполнения запроса: {e}")
         conn.rollback()

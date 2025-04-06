@@ -59,20 +59,24 @@ def add_department(department_name, manual_count, id_faculty):
 
 
 # Функция для редактирования кафедры
-def update_department(id_department, department_name, manual_count, id_faculty):
+def update_department_field(id_department, field_name, new_value):
     conn = connect_to_db()
     if conn is None:
         return
 
+    allowed_fields = ["department_name", "manual_count", "id_faculty"]
+
+    if field_name not in allowed_fields:
+        print("Ошибка: Недопустимое поле для обновления")
+        return
+
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE department
-            SET department_name = %s, manual_count = %s, id_faculty = %s
-            WHERE id_department = %s;
-        """, (department_name, manual_count, id_faculty, id_department))
+        query = f"UPDATE department SET {field_name} = %s WHERE id_department = %s;"
+        cursor.execute(query, (new_value, id_department))
         conn.commit()
         cursor.close()
+        print("Кафедра успешно обновлена")
     except DatabaseError as e:
         print(f"Ошибка выполнения запроса: {e}")
         conn.rollback()
@@ -80,6 +84,7 @@ def update_department(id_department, department_name, manual_count, id_faculty):
         print(f"Неизвестная ошибка при редактировании кафедры: {e}")
     finally:
         conn.close()
+
 
 
 # Функция для удаления кафедры

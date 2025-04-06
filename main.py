@@ -11,13 +11,13 @@ def main():
     id_faculty = add_faculty('ФФиПИ', 'Таныгин', 10)
     print(f'Добавлен факультет с id = {id_faculty}')
 
-    id_department = add_department('ПО', 5, id_faculty)
+    id_department = add_department('ИБ', 2, id_faculty)
     print(f'Добавлена кафедра с id = {id_department}')
 
-    id_teacher = add_teacher('Петров Михаил Евгеньевич', 2, 'Лучший в мире', id_department)
+    id_teacher = add_teacher('Станислав Киреев', 2, 'Худший в мире', id_department)
     print(f'Добавлен преподаватель с id = {id_teacher}')
 
-    id_manual = add_manual('Методичка по крутости', '2025-04-06', 10, "На проверке", id_teacher, id_department, id_faculty)
+    id_manual = add_manual('Методичка по языку', '2025-03-06', 10, "На проверке", id_teacher, id_department, id_faculty)
     print(f'Добавлена методичка с id = {id_manual}')
 
     id_reviewer = add_reviewer('Глазов Михаил Юрьевич', id_manual)

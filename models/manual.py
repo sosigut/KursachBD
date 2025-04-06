@@ -69,21 +69,24 @@ def add_manual(manual_name, release_date, page_count, status, id_teacher, id_dep
 
 
 # Функция для редактирования методички
-def update_manual(id_manual, manual_name, release_date, page_count, status, id_teacher, id_department, id_faculty):
+def update_manual_field(id_manual, field_name, new_value):
     conn = connect_to_db()
     if conn is None:
         return
 
+    allowed_fields = ["manual_name", "release_date", "page_count", "status", "id_teacher", "id_department", "id_faculty"]
+
+    if field_name not in allowed_fields:
+        print("Ошибка: Недопустимое поле для обновления")
+        return
+
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE manual
-            SET manual_name = %s, release_date = %s, page_count = %s, status = %s, 
-                id_teacher = %s, id_department = %s, id_faculty = %s
-            WHERE id_manual = %s;
-        """, (manual_name, release_date, page_count, status, id_teacher, id_department, id_faculty, id_manual))
+        query = f"UPDATE manual SET {field_name} = %s WHERE id_manual = %s;"
+        cursor.execute(query, (new_value, id_manual))
         conn.commit()
         cursor.close()
+        print("Методичка успешно обновлена")
     except DatabaseError as e:
         print(f"Ошибка выполнения запроса: {e}")
         conn.rollback()
