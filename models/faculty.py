@@ -21,7 +21,7 @@ def is_valid_string(s):
     return bool(re.match(r'^[A-Za-zА-Яа-яЁё\s]+$', s))  # Разрешает буквы и пробелы
 
 # Функция для добавления факультета
-def add_faculty(faculty_name, dean_fio, manual_count):
+def add_faculty(faculty_name, faculty_code, dean_fio, manual_count):
     conn = connect_to_db()
     if conn is None:
         return None
@@ -33,14 +33,14 @@ def add_faculty(faculty_name, dean_fio, manual_count):
         if not is_valid_string(faculty_name) or not is_valid_string(dean_fio): # Проверка на буквы
             raise ValueError("Ошибка: ФИО или название факультета должны содержать только буквы")
 
-        if not isinstance(manual_count, int): # Проверка на цифры
-            raise ValueError('Ошибка: Количество методичек должно являться целым цислом')
+        if not isinstance(manual_count, int) or not isinstance(faculty_code, int): # Проверка на цифры
+            raise ValueError('Ошибка: Количество методичек или Код Факультета должно являться целым цислом')
 
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO faculty (faculty_name, dean_fio, manual_count)
-            VALUES (%s, %s, %s) RETURNING id_faculty;
-        """, (faculty_name, dean_fio, manual_count))
+            INSERT INTO faculty (faculty_name, faculty_code, dean_fio, manual_count)
+            VALUES (%s, %s, %s, %s) RETURNING id_faculty;
+        """, (faculty_name, faculty_code, dean_fio, manual_count))
         id_faculty = cursor.fetchone()[0]
         conn.commit()
         cursor.close()

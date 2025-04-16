@@ -22,26 +22,26 @@ def is_valid_string(s):
     return bool(re.match(r'^[A-Za-zА-Яа-яЁё\s]+$', s))  # Разрешает буквы и пробелы
 
 # Функция для добавления кафедры
-def add_department(department_name, manual_count, id_faculty):
+def add_department(department_name, department_code, manual_count, id_faculty):
     conn = connect_to_db()
     if conn is None:
         return None
 
     try:
-        if not department_name or not manual_count or not id_faculty: # Проверка на пустоту
-            raise ValueError("Ошибка: Название кафедры, количество методичек и ID факультета являются обязательными для заполнения")
+        if not department_name or not manual_count or not id_faculty or not department_code: # Проверка на пустоту
+            raise ValueError("Ошибка: Название кафедры, количество методичек, ID факультета, Код Кафедры являются обязательными для заполнения")
 
         if not is_valid_string(department_name): # Проверка на буквы
             raise ValueError("Ошибка: Название кафедры должны содержать только буквы")
 
-        if not isinstance(manual_count, int) or not isinstance(id_faculty, int): # Проверка на цифры
-            raise ValueError("Ошибка: Количество методичеку или ID факультета должны являться целыми числами")
+        if not isinstance(manual_count, int) or not isinstance(id_faculty, int) or not isinstance(department_code, int): # Проверка на цифры
+            raise ValueError("Ошибка: Количество методичеку, ID факультета или Код Кафедры должны являться целыми числами")
 
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO department (department_name, manual_count, id_faculty)
-            VALUES (%s, %s, %s) RETURNING id_department;
-        """, (department_name, manual_count, id_faculty))
+            INSERT INTO department (department_name, department_code, manual_count, id_faculty)
+            VALUES (%s, %s, %s, %s) RETURNING id_department;
+        """, (department_name, department_code, manual_count, id_faculty))
         id_department = cursor.fetchone()[0]
         conn.commit()
         cursor.close()

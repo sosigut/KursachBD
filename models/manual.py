@@ -95,6 +95,49 @@ def update_manual_field(id_manual, field_name, new_value):
     finally:
         conn.close()
 
+def check_manual(id_manual, approved, comment=None):
+    conn = connect_to_db()
+    if conn is None:
+        print("Ошибка подключения к базе данных.")
+        return False  # Возвращаем False в случае ошибки соединения
+
+    try:
+        cursor = conn.cursor()
+
+        # Обновляем статус методички
+        status = 'издано' if approved else 'на доработку'
+        cursor.execute("""
+            UPDATE manual
+            SET status = %s
+            WHERE id_manual = %s;
+        """, (status, id_manual))
+
+        # Если не одобрено — добавляем комментарий преподавателю
+        if not approved and comment:
+            cursor.execute("""
+                UPDATE manual
+                SET comment = %s
+                WHERE id_manual = %s;
+            """, (comment, id_manual))
+
+        conn.commit()
+        cursor.close()
+
+        # Логируем успешное выполнение
+        print(f"Методичка с ID {id_manual} {'издана' if approved else 'отправлена на доработку'}.")
+
+        return True  # Возвращаем True, если все прошло успешно
+
+    except DatabaseError as e:
+        print(f"Ошибка при обновлении методички: {e}")
+        conn.rollback()
+        return False  # Возвращаем False при ошибке в базе данных
+    except Exception as e:
+        print(f"Неизвестная ошибка при проверке методички: {e}")
+        conn.rollback()
+        return False  # Возвращаем False при неизвестной ошибке
+    finally:
+        conn.close()
 
 # Функция для удаления методички
 def delete_manual(id_manual):
